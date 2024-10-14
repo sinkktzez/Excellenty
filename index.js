@@ -1,71 +1,42 @@
 import express from "express";
 const app = express();
+import connection from "./config/sequelize-config.js";
+import ClientesController from "./controllers/ClientesController.js";
+import ProdutosController from "./controllers/ProdutosController.js";
+import PedidosController from "./controllers/PedidosController.js";
 
-app.set('view engine', 'ejs');
+app.use(express.urlencoded({extend: false}));
 
-app.use(express.static('public'));
+connection
+  .authenticate().then(() => {
+    console.log("Conexão com o banco de dados feita com sucesso!");
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+
+connection.query(`create database if not exists loja;`).then(() => {
+    console.log("O banco de dados está criado.");
+}).catch((error) => {
+    console.log(error);
+})
+
+app.set("view engine", "ejs");
+app.use(express.static("public"));
+
+app.use("/", ClientesController);
+app.use("/", ProdutosController);
+app.use("/", PedidosController);
 
 app.get("/", function (req, res) {
-    res.render("index");
-  });
-
-app.get("/clientes", function (req, res) {
-  const clientes = [
-    {
-      nome: "Gabriel Pereira",
-      cpf: "111.222.333-44",
-      endereco: "Rua do Sol, 12, Bairro Porto Seguro, Cidade Mar Azul, Estado do Horizonte, CEP: 11223-445",
-    },
-    {
-      nome: "Clara Mendes",
-      cpf: "555.666.777-88",
-      endereco: "Avenida das Águas, 78, Bairro Vila do Lago, Cidade Brisa Suave, Estado das Ondas, CEP: 22334-556",
-    },
-    {
-      nome: "Lucas Freitas",
-      cpf: "999.888.777-66",
-      endereco: "Travessa do Vento, 45, Bairro Alto do Céu, Cidade Estrela do Mar, Estado do Luar, CEP: 33445-667",
-    },
-    {
-      nome: "Juliana Costa",
-      cpf: "444.333.222-11",
-      endereco: "Praça dos Girassóis, 101, Bairro Flores do Campo, Cidade Horizonte Verde, Estado da Floresta, CEP: 44556-778",
-    },
-  ];
-  res.render("clientes", {
-    clientes: clientes,
-  });
-});
-  
-
-app.get("/pedidos", function (req, res) {
-  const pedidos = [
-    { numero: "673821001", valor: 2450 },
-    { numero: "673821002", valor: 850 },
-    { numero: "673821003", valor: 4000 },
-    { numero: "673821004", valor: 270 },
-  ];
-  res.render("pedidos", {
-    pedidos: pedidos,
-  });
+  res.render("index");
 });
 
-app.get("/produtos", function (req, res) {
-  const produtos = [
-    { nome: "Smartphone Xiaomi Redmi Note 11", preco: 1500, categoria: "Eletrônicos" },
-    { nome: "Smart TV LG 55' 4K", preco: 3200, categoria: "Eletrodomésticos" },
-    { nome: "Console PlayStation 5", preco: 4500, categoria: "Jogos" },
-    { nome: "Câmera GoPro Hero 10", preco: 1800, categoria: "Câmeras" },
-  ];
-  res.render("produtos", {
-    produtos: produtos,
-  });
-});
-
-app.listen(8080, function (erro) {
-  if (erro) {
-    console.log("Ocorreu um erro!");
+const port = 3000;
+app.listen(port, (error) => {
+  if (error) {
+    console.log(`Erro ao iniciar o servidor: ${error}.`);
   } else {
-    console.log("Servidor iniciado com sucesso!");
+    console.log(`Servidor rodando em http://localhost:${port}`);
   }
 });
