@@ -1,8 +1,9 @@
 import express from "express";
 const router = express.Router();
-import Cliente from '../models/Cliente.js'
+import Cliente from "../models/Cliente.js";
+import Auth from "../middleware/Auth.js";
 
-router.get("/clientes", function (req, res) {
+router.get("/clientes", Auth, function (req, res) {
   Cliente.findAll().then((clientes) => {
     res.render("clientes", {
       clientes: clientes,
@@ -10,8 +11,7 @@ router.get("/clientes", function (req, res) {
   });
 });
 
-
-router.post("/clientes/new", (req, res) => {
+router.post("/clientes/new", Auth, (req, res) => {
   const nome = req.body.nome;
   const cpf = req.body.cpf;
   const endereco = req.body.endereco;
@@ -24,7 +24,7 @@ router.post("/clientes/new", (req, res) => {
   });
 });
 
-router.get("/clientes/delete/:id", (req, res) => {
+router.get("/clientes/delete/:id", Auth, (req, res) => {
   const id = req.params.id;
   Cliente.destroy({
     where: {
@@ -39,7 +39,7 @@ router.get("/clientes/delete/:id", (req, res) => {
     });
 });
 
-router.get("/clientes/edit/:id", (req, res) => {
+router.get("/clientes/edit/:id", Auth, (req, res) => {
   const id = req.params.id;
   Cliente.findByPk(id)
     .then((cliente) => {
@@ -52,7 +52,7 @@ router.get("/clientes/edit/:id", (req, res) => {
     });
 });
 
-router.post("/clientes/update", (req, res) => {
+router.post("/clientes/update", Auth, (req, res) => {
   const id = req.body.id;
   const nome = req.body.nome;
   const cpf = req.body.cpf;
@@ -63,8 +63,8 @@ router.post("/clientes/update", (req, res) => {
       cpf: cpf,
       endereco: endereco,
     },
-    { where: { id: id } 
-    })
+    { where: { id: id } }
+  )
     .then(() => {
       res.redirect("/clientes");
     })
